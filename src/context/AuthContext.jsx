@@ -167,53 +167,90 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('agent', JSON.stringify(updatedAgent));
   };
 
-  const login = async (matricule) => {
-    try {
-      console.log('🔐 Tentative de connexion...', { matricule });
+  // const login = async (matricule) => {
+  //   try {
+  //     console.log('🔐 Tentative de connexion...', { matricule });
       
-      // CORRECTION : Utilisez l'URL complète de votre backend Render
-      const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ matricule }),
-      });
+  //     // CORRECTION : Utilisez l'URL complète de votre backend Render
+  //     const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ matricule }),
+  //     });
 
-      console.log('📡 Réponse du serveur:', response.status);
+  //     console.log('📡 Réponse du serveur:', response.status);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erreur réponse:', errorText);
+  //     if (!response.ok) {
+  //       const errorText = await response.text();
+  //       console.error('❌ Erreur réponse:', errorText);
         
-        let errorMessage = 'Erreur de connexion';
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          errorMessage = `Erreur serveur: ${response.status}`;
-        }
+  //       let errorMessage = 'Erreur de connexion';
+  //       try {
+  //         const errorData = JSON.parse(errorText);
+  //         errorMessage = errorData.message || errorMessage;
+  //       } catch (e) {
+  //         errorMessage = `Erreur serveur: ${response.status}`;
+  //       }
         
-        throw new Error(errorMessage);
-      }
+  //       throw new Error(errorMessage);
+  //     }
 
-      const data = await response.json();
-      console.log('✅ Connexion réussie:', data);
+  //     const data = await response.json();
+  //     console.log('✅ Connexion réussie:', data);
       
-      if (data.success) {
-        // Sauvegarder les infos de l'agent
-        localStorage.setItem('agent', JSON.stringify(data.agent));
-        setAgent(data.agent);
-        return { success: true };
-      } else {
-        return { success: false, error: data.message };
-      }
-    } catch (error) {
-      console.error('❌ Erreur connexion:', error.message);
-      return { success: false, error: error.message };
+  //     if (data.success) {
+  //       // Sauvegarder les infos de l'agent
+  //       localStorage.setItem('agent', JSON.stringify(data.agent));
+  //       setAgent(data.agent);
+  //       return { success: true };
+  //     } else {
+  //       return { success: false, error: data.message };
+  //     }
+  //   } catch (error) {
+  //     console.error('❌ Erreur connexion:', error.message);
+  //     return { success: false, error: error.message };
+  //   }
+  // };
+const login = async (matricule) => {
+  try {
+    console.log('🔐 Tentative de connexion...', { matricule });
+    
+    const API_BASE_URL = 'https://backend-tp-km23.onrender.com';
+    
+    const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ matricule }), // SEULEMENT matricule
+    });
+
+    console.log('📡 Réponse du serveur:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`Erreur serveur: ${response.status}`);
     }
-  };
 
+    const data = await response.json();
+    console.log('✅ Données reçues:', data);
+
+    if (data.success) {
+      setAgent(data.agent);
+      localStorage.setItem('agent', JSON.stringify(data.agent));
+      return { success: true };
+    } else {
+      return { success: false, message: data.message };
+    }
+  } catch (error) {
+    console.error('❌ Erreur connexion:', error);
+    return { 
+      success: false, 
+      message: error.message || 'Erreur de connexion au serveur' 
+    };
+  }
+};
   const logout = () => {
     localStorage.removeItem('agent');
     setAgent(null);
@@ -233,3 +270,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
