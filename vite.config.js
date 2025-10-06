@@ -16,7 +16,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://tp-react-snowy.vercel.app',
         changeOrigin: true
       }
     }
