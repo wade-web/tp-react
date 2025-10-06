@@ -1,4 +1,3 @@
-
 // import React, { createContext, useState, useContext, useEffect } from 'react';
 
 // const AuthContext = createContext();
@@ -31,6 +30,36 @@
 //     }
 //     setLoading(false);
 //   }, []);
+
+//   // Fonction pour mettre à jour le profil agent
+//   const updateAgentProfile = (updatedData) => {
+//     const updatedAgent = { ...agent, ...updatedData };
+//     setAgent(updatedAgent);
+//     // Mettre à jour aussi le localStorage
+//     localStorage.setItem('agent', JSON.stringify(updatedAgent));
+//   };
+
+//   // Fonction pour rafraîchir les données depuis le serveur
+//   const refreshAgentData = async () => {
+//     try {
+//       const token = localStorage.getItem('token');
+//       if (!token) return;
+
+//       const response = await fetch('/api/agent/me', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`
+//         }
+//       });
+
+//       if (response.ok) {
+//         const agentData = await response.json();
+//         setAgent(agentData);
+//         localStorage.setItem('agent', JSON.stringify(agentData));
+//       }
+//     } catch (error) {
+//       console.error('Erreur rafraîchissement données agent:', error);
+//     }
+//   };
 
 //   const login = async (matricule, motDePasse) => {
 //     try {
@@ -86,7 +115,9 @@
 //     agent,
 //     login,
 //     logout,
-//     loading
+//     loading,
+//     updateAgentProfile, // Ajout de la fonction de mise à jour
+//     refreshAgentData    // Ajout de la fonction de rafraîchissement
 //   };
 
 //   return (
@@ -94,9 +125,8 @@
 //       {children}
 //     </AuthContext.Provider>
 //   );
-// };
 
-// context/AuthContext.js
+// };
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -113,63 +143,41 @@ export const AuthProvider = ({ children }) => {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // URL de base de votre backend Render
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://backend-tp-km23.onrender.com';
+
   useEffect(() => {
     // Vérifier si l'agent est déjà connecté au chargement de l'application
-    const token = localStorage.getItem('token');
     const savedAgent = localStorage.getItem('agent');
     
-    if (token && savedAgent) {
+    if (savedAgent) {
       try {
         setAgent(JSON.parse(savedAgent));
       } catch (error) {
         console.error('Erreur parsing agent data:', error);
-        localStorage.removeItem('token');
         localStorage.removeItem('agent');
       }
     }
     setLoading(false);
   }, []);
 
-  // Fonction pour mettre à jour le profil agent
   const updateAgentProfile = (updatedData) => {
     const updatedAgent = { ...agent, ...updatedData };
     setAgent(updatedAgent);
-    // Mettre à jour aussi le localStorage
     localStorage.setItem('agent', JSON.stringify(updatedAgent));
   };
 
-  // Fonction pour rafraîchir les données depuis le serveur
-  const refreshAgentData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await fetch('/api/agent/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const agentData = await response.json();
-        setAgent(agentData);
-        localStorage.setItem('agent', JSON.stringify(agentData));
-      }
-    } catch (error) {
-      console.error('Erreur rafraîchissement données agent:', error);
-    }
-  };
-
-  const login = async (matricule, motDePasse) => {
+  const login = async (matricule) => {
     try {
       console.log('🔐 Tentative de connexion...', { matricule });
       
-      const response = await fetch('/api/agent/login', {
+      // CORRECTION : Utilisez l'URL complète de votre backend Render
+      const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ matricule, motDePasse }),
+        body: JSON.stringify({ matricule }),
       });
 
       console.log('📡 Réponse du serveur:', response.status);
@@ -181,7 +189,7 @@ export const AuthProvider = ({ children }) => {
         let errorMessage = 'Erreur de connexion';
         try {
           const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorMessage;
+          errorMessage = errorData.message || errorMessage;
         } catch (e) {
           errorMessage = `Erreur serveur: ${response.status}`;
         }
@@ -190,14 +198,16 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      console.log('✅ Connexion réussie:', data.agent);
+      console.log('✅ Connexion réussie:', data);
       
-      // Sauvegarder le token et les infos de l'agent
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('agent', JSON.stringify(data.agent));
-      
-      setAgent(data.agent);
-      return { success: true };
+      if (data.success) {
+        // Sauvegarder les infos de l'agent
+        localStorage.setItem('agent', JSON.stringify(data.agent));
+        setAgent(data.agent);
+        return { success: true };
+      } else {
+        return { success: false, error: data.message };
+      }
     } catch (error) {
       console.error('❌ Erreur connexion:', error.message);
       return { success: false, error: error.message };
@@ -205,7 +215,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
     localStorage.removeItem('agent');
     setAgent(null);
   };
@@ -215,8 +224,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     loading,
-    updateAgentProfile, // Ajout de la fonction de mise à jour
-    refreshAgentData    // Ajout de la fonction de rafraîchissement
+    updateAgentProfile,
   };
 
   return (
