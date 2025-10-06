@@ -41,10 +41,5 @@ export default defineConfig({
         rewrite: (path) => path
       }
     }
-  },
-  // Ajoutez cette configuration pour le build
-  build: {
-    outDir: 'dist',
-    sourcemap: true
   }
 })
