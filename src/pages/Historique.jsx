@@ -295,7 +295,7 @@ const Historique = () => {
         ...filters
       }).toString();
 
-      const response = await fetch(`/api/agent/transactions/historique?${queryParams}`, {
+      const response = await fetch(`https://backend-tp-km23.onrender.com/api/agent/transactions/historique?${queryParams}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -540,5 +540,6 @@ const Historique = () => {
     </div>
   );
 };
+
 
 export default Historique;
