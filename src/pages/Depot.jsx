@@ -770,7 +770,7 @@ const Depot = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "/api/agent/dashboard/users?role=distributeur&limit=100",
+        "https://backend-tp-km23.onrender.com/api/agent/dashboard/users?role=distributeur&limit=100",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await response.json();
@@ -783,7 +783,7 @@ const Depot = () => {
   const fetchAgentInfo = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/agent/info", {
+      const response = await fetch("https://backend-tp-km23.onrender.com/api/agent/info", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
@@ -831,7 +831,7 @@ const Depot = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/agent/distributeurs/credit", {
+      const response = await fetch("https://backend-tp-km23.onrender.com/api/agent/distributeurs/credit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1121,5 +1121,6 @@ const Depot = () => {
     </div>
   );
 };
+
 
 export default Depot;
