@@ -700,7 +700,7 @@ const Dashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/agent/dashboard/stats", {
+      const response = await fetch("https://backend-tp-km23.onrender.com/api/agent/dashboard/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -795,5 +795,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 
 export default Dashboard;
