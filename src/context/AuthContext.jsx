@@ -128,151 +128,7 @@
 
 // };
 
-// import React, { createContext, useState, useContext, useEffect } from 'react';
-
-// const AuthContext = createContext();
-
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) {
-//     throw new Error('useAuth must be used within an AuthProvider');
-//   }
-//   return context;
-// };
-
-// export const AuthProvider = ({ children }) => {
-//   const [agent, setAgent] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   // 🔧 Base URL du backend — adaptative selon l'environnement
-//   const API_URL =
-//     import.meta.env.VITE_API_URL ||
-//     (import.meta.env.MODE === 'production'
-//       ? 'https://backend-tp-km23.onrender.com'
-//       : 'http://localhost:10000');
-
-//   // Vérifier si l'agent est déjà connecté
-//   useEffect(() => {
-//     const token = localStorage.getItem('token');
-//     const savedAgent = localStorage.getItem('agent');
-
-//     if (token && savedAgent) {
-//       try {
-//         setAgent(JSON.parse(savedAgent));
-//       } catch (error) {
-//         console.error('⚠️ Erreur parsing agent data:', error);
-//         localStorage.removeItem('token');
-//         localStorage.removeItem('agent');
-//       }
-//     }
-
-//     setLoading(false);
-//   }, []);
-
-//   // 🧩 Fonction de connexion
-//   const login = async (matricule, motDePasse) => {
-//     try {
-//       console.log('🔐 Tentative de connexion...', { matricule });
-
-//       const response = await fetch(`${API_URL}/api/agent/login`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ matricule, motDePasse }),
-//         credentials: 'include', // important pour CORS
-//       });
-
-//       console.log('📡 Réponse du serveur:', response.status);
-
-//       const text = await response.text();
-
-//       if (!response.ok) {
-//         console.error('❌ Erreur réponse:', text);
-
-//         let errorMessage = 'Erreur de connexion';
-//         try {
-//           const errorData = JSON.parse(text);
-//           errorMessage = errorData.error || errorMessage;
-//         } catch {
-//           errorMessage = `Erreur serveur: ${response.status}`;
-//         }
-
-//         throw new Error(errorMessage);
-//       }
-
-//       const data = JSON.parse(text);
-//       console.log('✅ Connexion réussie:', data.agent);
-
-//       localStorage.setItem('token', data.token);
-//       localStorage.setItem('agent', JSON.stringify(data.agent));
-//       setAgent(data.agent);
-
-//       return { success: true, agent: data.agent };
-//     } catch (error) {
-//       console.error('❌ Erreur connexion:', error.message);
-//       return { success: false, error: error.message };
-//     }
-//   };
-
-//   // 🧩 Déconnexion
-//   const logout = () => {
-//     localStorage.removeItem('token');
-//     localStorage.removeItem('agent');
-//     setAgent(null);
-//   };
-
-//   // 🧩 Mise à jour locale du profil
-//   const updateAgentProfile = (updatedData) => {
-//     const updatedAgent = { ...agent, ...updatedData };
-//     setAgent(updatedAgent);
-//     localStorage.setItem('agent', JSON.stringify(updatedAgent));
-//   };
-
-//   // 🧩 Rafraîchissement des données depuis le serveur
-//   const refreshAgentData = async () => {
-//     try {
-//       const token = localStorage.getItem('token');
-//       if (!token) return;
-
-//       const response = await fetch(`${API_URL}/api/agent/me`, {
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//         credentials: 'include',
-//       });
-
-//       if (response.ok) {
-//         const agentData = await response.json();
-//         setAgent(agentData);
-//         localStorage.setItem('agent', JSON.stringify(agentData));
-//       } else {
-//         console.warn('⚠️ Impossible de rafraîchir les données agent');
-//       }
-//     } catch (error) {
-//       console.error('Erreur rafraîchissement données agent:', error);
-//     }
-//   };
-
-//   const value = {
-//     agent,
-//     login,
-//     logout,
-//     loading,
-//     updateAgentProfile,
-//     refreshAgentData,
-//   };
-
-//   return (
-//     <AuthContext.Provider value={value}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import config from '../config';
 
 const AuthContext = createContext();
 
@@ -288,60 +144,114 @@ export const AuthProvider = ({ children }) => {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Utilisez l'URL de base du backend
-  const API_BASE_URL = config.API_BASE_URL;
+  // 🔧 Base URL du backend — adaptative selon l'environnement
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.MODE === 'production'
+      ? 'https://backend-tp-km23.onrender.com'
+      : 'http://localhost:10000');
 
+  // Vérifier si l'agent est déjà connecté
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const savedAgent = localStorage.getItem('agent');
-    if (savedAgent) {
-      setAgent(JSON.parse(savedAgent));
+
+    if (token && savedAgent) {
+      try {
+        setAgent(JSON.parse(savedAgent));
+      } catch (error) {
+        console.error('⚠️ Erreur parsing agent data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('agent');
+      }
     }
+
     setLoading(false);
   }, []);
 
+  // 🧩 Fonction de connexion
   const login = async (matricule, motDePasse) => {
     try {
       console.log('🔐 Tentative de connexion...', { matricule });
-      
-      // URL COMPLÈTE vers votre backend Render
-      const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
+
+      const response = await fetch(`${API_URL}/api/agent/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ matricule, motDePasse }),
+        credentials: 'include', // important pour CORS
       });
 
       console.log('📡 Réponse du serveur:', response.status);
 
+      const text = await response.text();
+
       if (!response.ok) {
-        throw new Error(`Erreur serveur: ${response.status}`);
+        console.error('❌ Erreur réponse:', text);
+
+        let errorMessage = 'Erreur de connexion';
+        try {
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Erreur serveur: ${response.status}`;
+        }
+
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      const data = JSON.parse(text);
       console.log('✅ Connexion réussie:', data.agent);
 
-      if (data.success) {
-        setAgent(data.agent);
-        localStorage.setItem('agent', JSON.stringify(data.agent));
-        localStorage.setItem('token', data.token);
-        return { success: true };
-      } else {
-        return { success: false, message: data.error };
-      }
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('agent', JSON.stringify(data.agent));
+      setAgent(data.agent);
+
+      return { success: true, agent: data.agent };
     } catch (error) {
-      console.error('❌ Erreur connexion:', error);
-      return { 
-        success: false, 
-        message: error.message || 'Erreur de connexion au serveur' 
-      };
+      console.error('❌ Erreur connexion:', error.message);
+      return { success: false, error: error.message };
     }
   };
 
+  // 🧩 Déconnexion
   const logout = () => {
-    setAgent(null);
-    localStorage.removeItem('agent');
     localStorage.removeItem('token');
+    localStorage.removeItem('agent');
+    setAgent(null);
+  };
+
+  // 🧩 Mise à jour locale du profil
+  const updateAgentProfile = (updatedData) => {
+    const updatedAgent = { ...agent, ...updatedData };
+    setAgent(updatedAgent);
+    localStorage.setItem('agent', JSON.stringify(updatedAgent));
+  };
+
+  // 🧩 Rafraîchissement des données depuis le serveur
+  const refreshAgentData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch(`${API_URL}/api/agent/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const agentData = await response.json();
+        setAgent(agentData);
+        localStorage.setItem('agent', JSON.stringify(agentData));
+      } else {
+        console.warn('⚠️ Impossible de rafraîchir les données agent');
+      }
+    } catch (error) {
+      console.error('Erreur rafraîchissement données agent:', error);
+    }
   };
 
   const value = {
@@ -349,7 +259,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     loading,
-    API_BASE_URL // Exportez l'URL pour l'utiliser dans d'autres composants
+    updateAgentProfile,
+    refreshAgentData,
   };
 
   return (
@@ -358,6 +269,96 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+
+// import React, { createContext, useState, useContext, useEffect } from 'react';
+// import config from '../config';
+
+// const AuthContext = createContext();
+
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (!context) {
+//     throw new Error('useAuth must be used within an AuthProvider');
+//   }
+//   return context;
+// };
+
+// export const AuthProvider = ({ children }) => {
+//   const [agent, setAgent] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   // Utilisez l'URL de base du backend
+//   const API_BASE_URL = config.API_BASE_URL;
+
+//   useEffect(() => {
+//     const savedAgent = localStorage.getItem('agent');
+//     if (savedAgent) {
+//       setAgent(JSON.parse(savedAgent));
+//     }
+//     setLoading(false);
+//   }, []);
+
+//   const login = async (matricule, motDePasse) => {
+//     try {
+//       console.log('🔐 Tentative de connexion...', { matricule });
+      
+//       // URL COMPLÈTE vers votre backend Render
+//       const response = await fetch(`${API_BASE_URL}/api/agent/login`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ matricule, motDePasse }),
+//       });
+
+//       console.log('📡 Réponse du serveur:', response.status);
+
+//       if (!response.ok) {
+//         throw new Error(`Erreur serveur: ${response.status}`);
+//       }
+
+//       const data = await response.json();
+//       console.log('✅ Connexion réussie:', data.agent);
+
+//       if (data.success) {
+//         setAgent(data.agent);
+//         localStorage.setItem('agent', JSON.stringify(data.agent));
+//         localStorage.setItem('token', data.token);
+//         return { success: true };
+//       } else {
+//         return { success: false, message: data.error };
+//       }
+//     } catch (error) {
+//       console.error('❌ Erreur connexion:', error);
+//       return { 
+//         success: false, 
+//         message: error.message || 'Erreur de connexion au serveur' 
+//       };
+//     }
+//   };
+
+//   const logout = () => {
+//     setAgent(null);
+//     localStorage.removeItem('agent');
+//     localStorage.removeItem('token');
+//   };
+
+//   const value = {
+//     agent,
+//     login,
+//     logout,
+//     loading,
+//     API_BASE_URL // Exportez l'URL pour l'utiliser dans d'autres composants
+//   };
+
+//   return (
+//     <AuthContext.Provider value={value}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
 
 
 
