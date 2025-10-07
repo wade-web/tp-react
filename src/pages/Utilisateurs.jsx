@@ -1884,7 +1884,7 @@ const Utilisateurs = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `/api/agent/dashboard/users?page=${currentPage}&limit=5&search=${searchTerm}&archived=false`,
+        `https://backend-tp-km23.onrender.com/api/agent/dashboard/users?page=${currentPage}&limit=5&search=${searchTerm}&archived=false`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -3146,5 +3146,6 @@ const Utilisateurs = () => {
     </div>
   );
 };
+
 
 export default Utilisateurs;
