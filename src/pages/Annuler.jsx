@@ -93,7 +93,7 @@ const Annuler = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/agent/transactions/historique?limit=20', {
+      const response = await fetch('https://backend-tp-km23.onrender.com/api/agent/transactions/historique?limit=20', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -266,5 +266,6 @@ const Annuler = () => {
     </div>
   );
 };
+
 
 export default Annuler;
