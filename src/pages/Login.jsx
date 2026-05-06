@@ -58,7 +58,7 @@ const Login = () => {
               type="text"
               value={formData.matricule}
               onChange={(e) => setFormData({...formData, matricule: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="Entrez votre matricule"
               required
               disabled={loading}
@@ -74,7 +74,7 @@ const Login = () => {
               type="password"
               value={formData.motDePasse}
               onChange={(e) => setFormData({...formData, motDePasse: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="Entrez votre mot de passe"
               required
               disabled={loading}
