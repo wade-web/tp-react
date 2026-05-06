@@ -106,6 +106,8 @@ const Login = () => {
           <p className="text-xs text-gray-600">
             Utilisez les identifiants de démonstration fournis par l'administration.
           </p>
+          <p>matricule: AGENT002</p>
+          <p>mot de passe: agent123</p>
         </div>
       </div>
         </div>
